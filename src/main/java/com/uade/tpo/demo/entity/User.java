@@ -1,7 +1,11 @@
 package com.uade.tpo.demo.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.hibernate.annotations.Columns;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.Data;
 
 @Entity
@@ -40,7 +45,10 @@ public class User {
     @JoinColumn(name = "role_id", nullable = false) // Define la clave foránea en la tabla User
     private Role role; // Asociación hacia Role
 
-    // @JoinColumn: 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Critic> critics = new ArrayList<>();
+
+    // @JoinColumn:
     // Especifica que esta relación se mapeará con una clave foránea en la tabla User.
     
     // name = "role_id":

@@ -14,7 +14,7 @@ public class MailService {
     public void sendMail(String toEmail, String subject, String body) {
         
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("thegoldenfeather2024@gmail.com"); // correo desde el cual se envía
+        message.setFrom("theMovieMeterOfficial@gmail.com"); // correo desde el cual se envía
         message.setTo(toEmail); // correo del destinatario
         message.setSubject(subject); // asunto del correo
         message.setText(body); // cuerpo del correo

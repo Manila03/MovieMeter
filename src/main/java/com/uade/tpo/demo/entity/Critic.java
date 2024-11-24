@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.Data;
 
 @Entity
@@ -14,9 +16,11 @@ public class Critic {
         // Constructor por defecto requerido por JPA
     }
 
-    public Critic(String description, int value) {
+    public Critic(String description, int value,User user, Film film) {
         this.description = description;
         this.value = value;
+        this.user = user;
+        this.film = film;
     }
 
     @Id
@@ -27,11 +31,15 @@ public class Critic {
     private int value;
 
     @Column
-    private String User;
-
-    @Column
     private String description;
 
+    @ManyToOne
+    @JoinColumn(name = "film_id", nullable = false)
+    private Film film;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     
     // this is the critic made from a user rating a particular film,
