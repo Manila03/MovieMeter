@@ -11,4 +11,5 @@ public interface CriticService {
     List<Critic> getCriticsFromFilm(Long filmId);
     Critic getCriticFromFilmAndUser(Long userId, Long filmId);
     Critic updateCritic(Long criticId, CriticRequest criticRequest);
+    void deleteCritic(Long criticId);
 }

@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-
+import org.springframework.web.bind.annotation.PutMapping;
 
 
 @RestController
@@ -113,5 +113,10 @@ public class FilmController {
     public ResponseEntity<Long> getFilmRevenue(@PathVariable Long filmId) {
         return ResponseEntity.ok(filmService.getFilmRevenue(filmId));
     }
+    
+    // @PutMapping("/update/{filmId}")
+    // public ResponseEntity<Film> updateFilmAudienceRating(@PathVariable Long filmId) {
+    //     return ResponseEntity.ok(filmService.updateFilmAudienceRating(filmId));
+    // }
     
 }

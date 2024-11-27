@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.uade.tpo.demo.entity.Critic;
 import com.uade.tpo.demo.entity.Film;
 import com.uade.tpo.demo.exceptions.FilmDuplicateException;
+import com.uade.tpo.demo.repository.CriticRepository;
 import com.uade.tpo.demo.repository.FilmRepository;
 
 import info.movito.themoviedbapi.model.core.Movie;
@@ -20,6 +22,9 @@ import info.movito.themoviedbapi.model.movies.MovieDb;
 public class FilmServiceImpl implements FilmService {
     @Autowired
     private FilmRepository filmRepository;
+
+    @Autowired
+    private CriticRepository criticRepository;
 
     @Autowired
     private TmdbService tmdbService; // Servicio de TMDB
@@ -146,8 +151,32 @@ public class FilmServiceImpl implements FilmService {
         Optional<Film> film = filmRepository.findById(id);
             return film.get().getRevenue();
     }
-    
 
-    // TODO falta implementar un metodo tipo update a la audienceRating de una film,
-    // cada vez que se genere una Critic nueva =)
+    @Override
+    public Film updateFilmAudienceRating(Long id){
+        System.out.println(id);
+        List<Critic> allCriticsFromFilm = criticRepository.allCriticsFromFilm(id);
+        System.out.println(allCriticsFromFilm.size());
+        int lenAll = allCriticsFromFilm.size();
+        if (lenAll == 0) {
+            System.out.println("lenAll == 0");
+            Film film = filmRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Film not found in if"));
+            film.setAudienceRating(0); // O un valor predeterminado
+            filmRepository.save(film);
+            return film;
+        } else {
+            List<Critic> positiveCriticsFromFilm = criticRepository.positiveCriticsFromFilm(id);
+            System.out.println(positiveCriticsFromFilm);
+            int lenPositives = positiveCriticsFromFilm.size();
+
+            Integer newAudienceRating = Math.round((lenPositives / lenAll) * 100);
+            Film film = filmRepository.findById(id).orElseThrow(() -> new RuntimeException("Film not found in else"));
+            System.out.println(film);
+            film.setAudienceRating(newAudienceRating);
+            filmRepository.save(film);
+            return film;
+        }
+        
+    }
 }

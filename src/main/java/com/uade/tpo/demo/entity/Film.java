@@ -3,6 +3,9 @@ package com.uade.tpo.demo.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import lombok.Data;
+import lombok.ToString;
 
 @Entity
 @Data
@@ -67,7 +71,9 @@ public class Film {
     @Column
     private Long revenue;
 
+    @JsonManagedReference // Indica que esta lista es la "gestora" en la relación
     @OneToMany(mappedBy = "film", cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Critic> critics = new ArrayList<>();
 
 }

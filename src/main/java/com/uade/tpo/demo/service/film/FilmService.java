@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.uade.tpo.demo.entity.Film;
+import com.uade.tpo.demo.entity.dto.FilmRequest;
 import com.uade.tpo.demo.exceptions.FilmDuplicateException;
 
 public interface FilmService{
@@ -18,8 +19,6 @@ public interface FilmService{
     Double getFilmCriticRating(Long id);
     
     Integer getFilmAudienceRating(Long id);
-
-
     
     String getFilmPosterPath(Long id);
 
@@ -37,8 +36,7 @@ public interface FilmService{
 
     Long getFilmRevenue(Long id);
 
-    
+    Film updateFilmAudienceRating(Long id);
 
-    // TODO falta implementar un metodo tipo update a la audienceRating de una film,
-    // TODO falta el getFilmBudget y el getFilmRevenue
+    
 }
