@@ -38,5 +38,5 @@ public interface FilmService{
 
     Film updateFilmAudienceRating(Long id);
 
-    
+    void loadFilms();
 }

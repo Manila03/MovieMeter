@@ -13,15 +13,21 @@ import com.uade.tpo.demo.entity.Film;
 import com.uade.tpo.demo.exceptions.FilmDuplicateException;
 import com.uade.tpo.demo.repository.CriticRepository;
 import com.uade.tpo.demo.repository.FilmRepository;
+import com.uade.tpo.demo.service.category.CategoryService;
 
 import info.movito.themoviedbapi.model.core.Movie;
+import info.movito.themoviedbapi.model.core.MovieResultsPage;
 import info.movito.themoviedbapi.model.movies.MovieDb;
+import java.util.concurrent.TimeUnit;
 
 
 @Service
 public class FilmServiceImpl implements FilmService {
     @Autowired
     private FilmRepository filmRepository;
+
+    @Autowired
+    private CategoryService categoryService;
 
     @Autowired
     private CriticRepository criticRepository;
@@ -179,4 +185,29 @@ public class FilmServiceImpl implements FilmService {
         }
         
     }
+
+    @Override
+    public void loadFilms() {
+        int totalPages = 217;
+        for( int page = 1; page < totalPages; page++){
+            MovieResultsPage filmsInPage = tmdbService.discoverFilmsInPage(page);
+            List<Movie> filmsList = filmsInPage.getResults();
+            for (Movie movie : filmsList) {
+                String title = movie.getTitle();
+                String year = movie.getReleaseDate().substring(0,4);
+                Integer genre = movie.getGenreIds().get(0);
+                String category = categoryService.getCategoryById(Long.valueOf(genre)).orElseThrow(() -> new RuntimeException("category not found")).getDescription();
+                try {
+                    createFilm(title,  category, Integer.parseInt(year), 1);
+
+                } catch (FilmDuplicateException e) {
+                    e.printStackTrace();
+                }
+            }
+            totalPages = filmsInPage.getTotalPages();
+            System.out.println(totalPages);
+        }
+        
+        // TODO implementar: sistema de calificaciones ponderadas para las peliculas =)
+}
 }

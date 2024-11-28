@@ -113,6 +113,12 @@ public class FilmController {
     public ResponseEntity<Long> getFilmRevenue(@PathVariable Long filmId) {
         return ResponseEntity.ok(filmService.getFilmRevenue(filmId));
     }
+
+    @GetMapping("/loadFilms")
+    public void loadFilms() {
+        filmService.loadFilms();
+    }
+    
     
     // @PutMapping("/update/{filmId}")
     // public ResponseEntity<Film> updateFilmAudienceRating(@PathVariable Long filmId) {

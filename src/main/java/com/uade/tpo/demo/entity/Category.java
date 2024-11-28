@@ -22,7 +22,6 @@ public class Category {
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     // Con la annotation @Id definimos que la variable private 'id' sera la primary key
     // con la annotation @Entity definimos que la clase Category es una entidad de la base de datos

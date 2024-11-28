@@ -1,21 +1,31 @@
 package com.uade.tpo.demo.service.film;
 
 import info.movito.themoviedbapi.TmdbApi;
+import info.movito.themoviedbapi.TmdbDiscover;
 import info.movito.themoviedbapi.model.core.Movie;
 import info.movito.themoviedbapi.model.core.MovieResultsPage;
 import info.movito.themoviedbapi.model.movies.MovieDb;
-
+import info.movito.themoviedbapi.tools.builders.discover.DiscoverMovieParamBuilder;
+import info.movito.themoviedbapi.tools.sortby.DiscoverMovieSortBy;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.util.Comparator;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import com.uade.tpo.demo.entity.Film;
+
 
 
 @Service
 public class TmdbService {
+
     private final String apiKey;
     private final TmdbApi tmdbApi;
+    // private final String TMDB_API_URL = "https://api.themoviedb.org/3";
 
     public TmdbService() {
         Dotenv dotenv = Dotenv.load();
@@ -57,8 +67,29 @@ public class TmdbService {
         }
 
     }
+
+
     
-    
+    public MovieResultsPage discoverFilmsInPage(int page) {
+        
+        
+        DiscoverMovieParamBuilder builder = new DiscoverMovieParamBuilder();
+        builder.sortBy(DiscoverMovieSortBy.VOTE_AVERAGE_DESC);
+        builder.voteCountGte(1000);
+        builder.page(page);
+        try {
+            MovieResultsPage filmsPage = tmdbApi.getDiscover().getMovie(builder);
+            return filmsPage;
+            // System.out.println(filmsPage.getResults());
+            }
+        catch (Exception e) {
+            System.err.println("Error when searching for filmPage: " + e.getMessage());
+            return null;
+        }
+        
+
+
+    }
 
     }
 
