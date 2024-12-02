@@ -4,11 +4,10 @@ import java.util.List;
 import java.util.Optional;
 
 import com.uade.tpo.demo.entity.Film;
-import com.uade.tpo.demo.entity.dto.FilmRequest;
 import com.uade.tpo.demo.exceptions.FilmDuplicateException;
 
 public interface FilmService{
-    public Film createFilm(String title, String category, Integer releaseYear, int audienceRating) throws FilmDuplicateException;
+    public Film createFilm(String title, String category, Integer releaseYear) throws FilmDuplicateException;
     
     Optional<Film> getFilmById(Long id);
     
@@ -17,8 +16,6 @@ public interface FilmService{
     List<Film> getFilmsByCategory(String category);
     
     Double getFilmCriticRating(Long id);
-    
-    Integer getFilmAudienceRating(Long id);
     
     String getFilmPosterPath(Long id);
 
@@ -35,8 +32,12 @@ public interface FilmService{
     Integer getFilmBudget(Long id);
 
     Long getFilmRevenue(Long id);
-
+    
     Film updateFilmAudienceRating(Long id);
 
+    Integer getFilmAudienceRating(Long id);
+
+    void loadActors();
+    
     void loadFilms();
 }

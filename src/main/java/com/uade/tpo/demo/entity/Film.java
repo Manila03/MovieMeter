@@ -3,9 +3,10 @@ package com.uade.tpo.demo.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import info.movito.themoviedbapi.model.movies.Cast;
+import info.movito.themoviedbapi.model.movies.Credits;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,17 +24,19 @@ public class Film {
         // Constructor por defecto requerido por JPA
     }
 
-    public Film(String title, String category, String description,  Integer releaseYear, Integer duration, Double criticRating, int audienceRating, String posterPath, Integer budget, Long revenue) {
+    public Film(String title, String category, String description,  Integer releaseYear, Integer duration, Double criticRating, Integer audienceRating, String posterPath, Integer budget, Long revenue, Integer voteCount, Double popularity) {
         this.title = title;
         this.category = category;
         this.description = description;
         this.releaseYear = releaseYear;
         this.duration = duration;
-        this.criticRating = criticRating;
         this.audienceRating = audienceRating;
+        this.criticRating = criticRating;
         this.posterPath = posterPath;
         this.budget = budget;
         this.revenue = revenue;
+        this.voteCount = voteCount;
+        this.popularity = popularity;
     }
 
 
@@ -60,7 +63,7 @@ public class Film {
     private Double criticRating;
 
     @Column
-    private int audienceRating;
+    private Integer audienceRating;
 
     @Column
     private String posterPath;
@@ -70,6 +73,12 @@ public class Film {
 
     @Column
     private Long revenue;
+
+    @Column
+    private Integer voteCount;
+
+    @Column
+    private Double popularity;
 
     @JsonManagedReference // Indica que esta lista es la "gestora" en la relación
     @OneToMany(mappedBy = "film", cascade = CascadeType.ALL)

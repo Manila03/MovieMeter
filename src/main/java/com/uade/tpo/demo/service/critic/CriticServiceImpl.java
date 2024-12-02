@@ -1,5 +1,7 @@
 package com.uade.tpo.demo.service.critic;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,8 +16,6 @@ import com.uade.tpo.demo.repository.UserRepository;
 import com.uade.tpo.demo.service.film.FilmServiceImpl;
 
 import jakarta.persistence.EntityNotFoundException;
-
-import java.util.List;
 
 
 @Service
@@ -66,7 +66,7 @@ public class CriticServiceImpl implements CriticService {
 
             // Guarda y retorna la crítica
             Critic newCritic = criticRepository.save(critic);
-            filmServiceImpl.updateFilmAudienceRating(criticRequest.getFilmId());
+
             // aca lo que hicimos fue actualizar la calificacion de la pelicula
             return newCritic;
         }

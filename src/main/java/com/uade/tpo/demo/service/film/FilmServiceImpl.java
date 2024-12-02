@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uade.tpo.demo.entity.Critic;
 import com.uade.tpo.demo.entity.Film;
 import com.uade.tpo.demo.exceptions.FilmDuplicateException;
@@ -16,9 +15,7 @@ import com.uade.tpo.demo.repository.FilmRepository;
 import com.uade.tpo.demo.service.category.CategoryService;
 
 import info.movito.themoviedbapi.model.core.Movie;
-import info.movito.themoviedbapi.model.core.MovieResultsPage;
 import info.movito.themoviedbapi.model.movies.MovieDb;
-import java.util.concurrent.TimeUnit;
 
 
 @Service
@@ -36,42 +33,42 @@ public class FilmServiceImpl implements FilmService {
     private TmdbService tmdbService; // Servicio de TMDB
 
     @Override
-    public Film createFilm(String title, String category, Integer releaseYear, int audienceRating) throws FilmDuplicateException {
+    public Film createFilm(String title, String category, Integer releaseYear) throws FilmDuplicateException {
         List<Film> matches = filmRepository.findFilmsDuplicated(title, releaseYear, category);
         if (matches.size() > 0) {
             throw new FilmDuplicateException();
         } else {
             Movie movieJson = tmdbService.getMovieDataFromTmdb(title, releaseYear);
             String posterPath = movieJson.getPosterPath();
-            Double rating = movieJson.getVoteAverage();
+            Double criticRating = movieJson.getVoteAverage();
             String description = movieJson.getOverview();
             int id = movieJson.getId();
 
             System.out.println(description);
             System.out.println(posterPath);
-            System.out.println(rating);
             System.out.println(id);
+
+            
 
             try {
                 // Extract specific fields
-                
-                
-
-                
                 MovieDb movieDbJson = tmdbService.getMovieById(id);
 
-                int duration = movieDbJson.getRuntime();
+                int duration = movieDbJson.getRuntime();       
                 Integer budget = movieDbJson.getBudget();
                 Long revenue = movieDbJson.getRevenue();
+                Integer voteCount = movieDbJson.getVoteCount();
+                Double popularity = movieDbJson.getPopularity();
+
+                System.out.println(popularity);
 
                 // Create a new Film object with the extracted fields
                 
-                Film film = new Film(title, category, description, releaseYear, duration, rating, audienceRating, posterPath, budget, revenue);
+                Film film = new Film(title, category, description, releaseYear, duration, criticRating,1,  posterPath, budget, revenue, voteCount, popularity);
+                
                 return filmRepository.save(film);
             } catch (Exception e) {
                 e.printStackTrace();
-                System.out.println(movieJson);
-                System.out.println("movieJson es null");
                 return null;
             }
 
@@ -183,31 +180,66 @@ public class FilmServiceImpl implements FilmService {
             filmRepository.save(film);
             return film;
         }
-        
+    }
+
+    @Override
+    public void loadActors() {
+        int totalPages = 300;
+        for (int page = 1; page < totalPages; page++){
+            System.out.println("ahora busco los resultados de la pagina: "+page);
+            try {
+                String url = "https://api.themoviedb.org/3/person/popular?language=en-US&page=";
+                JsonNode results = tmdbService.loadApiResults(page, url); 
+                for (JsonNode actor : results) {
+                    String name = actor.path("name").toString();
+                    String department = actor.path("known_for_department").toString();
+                    String image = actor.path("profile_path").toString();
+                    for (JsonNode elem : actor.path("known_for")) {
+                        Long filmId = elem.path("id").longValue();
+                    } 
+                }
+            } finally {
+
+                }
+            }
     }
 
     @Override
     public void loadFilms() {
-        int totalPages = 217;
-        for( int page = 1; page < totalPages; page++){
-            MovieResultsPage filmsInPage = tmdbService.discoverFilmsInPage(page);
-            List<Movie> filmsList = filmsInPage.getResults();
-            for (Movie movie : filmsList) {
-                String title = movie.getTitle();
-                String year = movie.getReleaseDate().substring(0,4);
-                Integer genre = movie.getGenreIds().get(0);
-                String category = categoryService.getCategoryById(Long.valueOf(genre)).orElseThrow(() -> new RuntimeException("category not found")).getDescription();
-                try {
-                    createFilm(title,  category, Integer.parseInt(year), 1);
-
-                } catch (FilmDuplicateException e) {
-                    e.printStackTrace();
-                }
-            }
-            totalPages = filmsInPage.getTotalPages();
-            System.out.println(totalPages);
-        }
+        int totalPages = 1000;
         
-        // TODO implementar: sistema de calificaciones ponderadas para las peliculas =)
+        for (int page = 1; page < totalPages; page++){
+            System.out.println("ahora busco los resultados de la pagina: "+page);
+            try {
+                String url = "https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=";
+                JsonNode results = tmdbService.loadApiResults(page, url); 
+                for (JsonNode movie : results) {
+                        // Extraer los datos de cada película
+                        int categoryId = movie.path("genre_ids").get(0).asInt();
+                        System.out.println("Category: " + categoryId);
+
+                        String releaseDate = movie.path("release_date").asText().substring(0,4);
+                        System.out.println("Release Date: " + releaseDate);
+
+                        String title = movie.path("title").asText();
+                        System.out.println("Release Date: " + title);
+
+                        System.out.println("ahora vamos a enviar el metodo de filmService para crear la pelicula");
+                        String category = categoryService.getCategoryById(Long.valueOf(categoryId)).orElseThrow(() -> new RuntimeException("category not found")).getDescription();
+
+                        try {
+                            createFilm(title, category, Integer.parseInt(releaseDate));
+
+                        } catch (FilmDuplicateException e) {
+                            e.printStackTrace();
+                            System.out.println("no se pudo crear la pelicula");
+                        }
+                    }
+            }
+            finally {
+                System.out.println("no se pudo obtener 'results'");
+            }
+            
+            }
 }
 }

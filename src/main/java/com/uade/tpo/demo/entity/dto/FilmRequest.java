@@ -9,9 +9,11 @@ public class FilmRequest {
     private String description;
     private Integer releaseYear;
     private Integer duration;
-    private Integer criticRating;
+    private Double criticRating;
     private Integer audienceRating;
     private String posterPath;
     private Integer budget;
     private Long revenue;
+    private Integer voteCount;
+    private Double popularity;
 }

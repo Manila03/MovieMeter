@@ -2,6 +2,7 @@ package com.uade.tpo.demo.controllers;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public class FilmController {
 
     @PostMapping
     public ResponseEntity<Object> createFilm(@RequestBody FilmRequest filmRequest) throws FilmDuplicateException {
-        Film result = filmService.createFilm(filmRequest.getTitle(), filmRequest.getCategory(), filmRequest.getReleaseYear(), filmRequest.getAudienceRating());
+        Film result = filmService.createFilm(filmRequest.getTitle(), filmRequest.getCategory(), filmRequest.getReleaseYear());
         return ResponseEntity.created(URI.create("/film/" +result.getId())).body(result);
     }
     
@@ -62,14 +63,14 @@ public class FilmController {
         return ResponseEntity.ok(result);
     }
 
+    // @GetMapping("/criticRate/{filmId}")
+    // public ResponseEntity<Double>  getFilmCriticRating(@PathVariable Long filmId) {
+    //     Double result = filmService.getFilmCriticRating(filmId);
+    //     return ResponseEntity.ok(result);
+    // }
     @GetMapping("/criticRate/{filmId}")
     public ResponseEntity<Double>  getFilmCriticRating(@PathVariable Long filmId) {
         Double result = filmService.getFilmCriticRating(filmId);
-        return ResponseEntity.ok(result);
-    }
-    @GetMapping("/audienceRate/{filmId}")
-    public ResponseEntity<Integer>  getFilmAudienceRating(@PathVariable Long filmId) {
-        Integer result = filmService.getFilmAudienceRating(filmId);
         return ResponseEntity.ok(result);
     }
     
@@ -118,7 +119,7 @@ public class FilmController {
     public void loadFilms() {
         filmService.loadFilms();
     }
-    
+
     
     // @PutMapping("/update/{filmId}")
     // public ResponseEntity<Film> updateFilmAudienceRating(@PathVariable Long filmId) {
