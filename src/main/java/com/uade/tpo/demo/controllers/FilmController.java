@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.uade.tpo.demo.entity.Film;
 import com.uade.tpo.demo.entity.dto.FilmRequest;
 import com.uade.tpo.demo.exceptions.FilmDuplicateException;
+import com.uade.tpo.demo.service.IMDBDataSheet;
 import com.uade.tpo.demo.service.film.FilmService;
 
 import io.micrometer.core.ipc.http.HttpSender.Response;
@@ -29,6 +30,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 @RestController
 @RequestMapping("films")
 public class FilmController {
+    @Autowired
+    private IMDBDataSheet imdbDataSheet;
+
     @Autowired
     private FilmService filmService;
 
@@ -115,10 +119,16 @@ public class FilmController {
         return ResponseEntity.ok(filmService.getFilmRevenue(filmId));
     }
 
+    // @GetMapping("/loadFilms")
+    // public void loadFilms() {
+    //     filmService.loadFilms();
+    // }
+
     @GetMapping("/loadFilms")
-    public void loadFilms() {
+    public void loadDataSheet() {
         filmService.loadFilms();
     }
+    
 
     
     // @PutMapping("/update/{filmId}")

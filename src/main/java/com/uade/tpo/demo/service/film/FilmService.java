@@ -8,6 +8,8 @@ import com.uade.tpo.demo.exceptions.FilmDuplicateException;
 
 public interface FilmService{
     public Film createFilm(String title, String category, Integer releaseYear) throws FilmDuplicateException;
+
+    // public Film createFilmFromData(String title, String category, Integer releaseYear)
     
     Optional<Film> getFilmById(Long id);
     
@@ -37,7 +39,7 @@ public interface FilmService{
 
     Integer getFilmAudienceRating(Long id);
 
-    void loadActors();
+    // void loadActors();
     
     void loadFilms();
 }

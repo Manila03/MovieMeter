@@ -26,7 +26,10 @@ public interface FilmRepository extends JpaRepository<Film, Long>{
     @Query ("SELECT f FROM Film f WHERE f.category = ?1")
     List<Film> findFilmsByCategory(String category);
 
-    @Query("SELECT f FROM Film f WHERE f.title = :title AND f.releaseYear = :releaseYear AND f.category = :category")
-    List<Film> findFilmsDuplicated(@Param("title") String title, @Param("releaseYear") Integer releaseYear, @Param("category") String category);
+    @Query("SELECT f FROM Film f WHERE f.title = ?1 AND f.releaseYear = ?2 AND f.category = ?3")
+    List<Film> findFilmsDuplicated(String title, Integer releaseYear, String category);
+
+    @Query("SELECT f FROM Film f WHERE f.imdbId = ?1")
+    List<Film> findFilmsDuplicated(String imdbId);
 
 }

@@ -1,7 +1,11 @@
 package com.uade.tpo.demo.service.film;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+
+import com.uade.tpo.demo.entity.Actor;
 
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.Dsl;
@@ -14,7 +18,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import info.movito.themoviedbapi.TmdbApi;
 import info.movito.themoviedbapi.model.core.Movie;
 import info.movito.themoviedbapi.model.core.MovieResultsPage;
+import info.movito.themoviedbapi.model.find.FindResults;
 import info.movito.themoviedbapi.model.movies.MovieDb;
+import info.movito.themoviedbapi.tools.builders.discover.DiscoverMovieParamBuilder;
+import info.movito.themoviedbapi.tools.model.time.ExternalSource;
+import info.movito.themoviedbapi.tools.sortby.DiscoverMovieSortBy;
 import io.github.cdimascio.dotenv.Dotenv;
 
 
@@ -31,6 +39,16 @@ public class TmdbService {
         Dotenv dotenv = Dotenv.load();
         this.apiKey = dotenv.get("API_KEY");
         this.tmdbApi = new TmdbApi(apiKey);
+    }
+
+    public FindResults getFindResultsFromImdbId(String imdbId) {
+        try {
+        FindResults results = tmdbApi.getFind().findById(imdbId, ExternalSource.IMDB_ID, null);
+        return results;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public Movie getMovieDataFromTmdb(String title, Integer releaseYear) {
@@ -68,7 +86,7 @@ public class TmdbService {
 
     }
 
-    public JsonNode loadApiResults(int page, String url) {
+    public List<JsonNode> loadApiResults(int page, String url) {
         System.out.println("aca estoy por solicitar la nueva pagina de peliculas");
         try (AsyncHttpClient client = Dsl.asyncHttpClient()) {
             Response response = client.prepareGet(url + page)
@@ -86,8 +104,8 @@ public class TmdbService {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = objectMapper.readTree(jsonData);
             JsonNode results = rootNode.path("results");
-            // client.close();
-            return results;
+            JsonNode totalPages = rootNode.path("total_pages");
+            return Arrays.asList(results, totalPages);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -95,11 +113,27 @@ public class TmdbService {
             return null;
         }
     }
-}
 
     
     
-        
+    public MovieResultsPage loadResultsPage(int page){
+        DiscoverMovieParamBuilder builder = new DiscoverMovieParamBuilder();
+        builder.sortBy(DiscoverMovieSortBy.VOTE_AVERAGE_ASC);
+        builder.voteCountGte(1000);
+        builder.page(page);
+        try {
+            MovieResultsPage filmsPage = tmdbApi.getDiscover().getMovie(builder);
+            return filmsPage;
+            // System.out.println(filmsPage.getResults());
+            }
+        catch (Exception e) {
+            System.err.println("Error when searching for filmPage: " + e.getMessage());
+            return null;
+        }
+    }
+}
+
+
         // DiscoverMovieParamBuilder builder = new DiscoverMovieParamBuilder();
         // builder.sortBy(DiscoverMovieSortBy.VOTE_AVERAGE_ASC);
         // builder.voteCountGte(2000);
@@ -114,10 +148,6 @@ public class TmdbService {
         //     return null;
         // }
         
-
-
-    
-    // TODO para implementar los actores que trabajaron en la pelicula primero cargaremos los actores mas populares y luego buscaremos uno por uno
     // si trabajan en alguna pelicula de la lista entonces se la asignaremos
 
     

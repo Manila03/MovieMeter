@@ -7,14 +7,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.uade.tpo.demo.entity.Actor;
 import com.uade.tpo.demo.entity.Critic;
 import com.uade.tpo.demo.entity.Film;
 import com.uade.tpo.demo.exceptions.FilmDuplicateException;
+import com.uade.tpo.demo.repository.ActorRepository;
 import com.uade.tpo.demo.repository.CriticRepository;
 import com.uade.tpo.demo.repository.FilmRepository;
+import com.uade.tpo.demo.service.IMDBDataSheet;
+import com.uade.tpo.demo.service.Actor.ActorService;
 import com.uade.tpo.demo.service.category.CategoryService;
 
 import info.movito.themoviedbapi.model.core.Movie;
+import info.movito.themoviedbapi.model.core.MovieResultsPage;
+import info.movito.themoviedbapi.model.find.FindPerson;
 import info.movito.themoviedbapi.model.movies.MovieDb;
 
 
@@ -27,7 +33,13 @@ public class FilmServiceImpl implements FilmService {
     private CategoryService categoryService;
 
     @Autowired
+    private IMDBDataSheet imdbDataSheet;
+
+    @Autowired
     private CriticRepository criticRepository;
+
+    @Autowired
+    private ActorService actorService;
 
     @Autowired
     private TmdbService tmdbService; // Servicio de TMDB
@@ -54,7 +66,7 @@ public class FilmServiceImpl implements FilmService {
                 // Extract specific fields
                 MovieDb movieDbJson = tmdbService.getMovieById(id);
 
-                int duration = movieDbJson.getRuntime();       
+                int duration = movieDbJson.getRuntime();
                 Integer budget = movieDbJson.getBudget();
                 Long revenue = movieDbJson.getRevenue();
                 Integer voteCount = movieDbJson.getVoteCount();
@@ -64,7 +76,7 @@ public class FilmServiceImpl implements FilmService {
 
                 // Create a new Film object with the extracted fields
                 
-                Film film = new Film(title, category, description, releaseYear, duration, criticRating,1,  posterPath, budget, revenue, voteCount, popularity);
+                Film film = new Film(title, category, description, releaseYear, duration, criticRating,1,  posterPath, budget, revenue, voteCount);
                 
                 return filmRepository.save(film);
             } catch (Exception e) {
@@ -181,65 +193,196 @@ public class FilmServiceImpl implements FilmService {
             return film;
         }
     }
+    
+    
+//     @Override
+//     public void loadActors() {
+//         int totalPages = 300;
+//         for (int page = 1; page < totalPages; page++){
+//             System.out.println("ahora busco los resultados de la pagina: "+page);
+//             try {
+//                 String url = "https://api.themoviedb.org/3/person/popular?language=en-US&page=";
+//                 JsonNode results = tmdbService.loadApiResults(page, url); 
+//                 for (JsonNode actor : results) {
+//                     String name = actor.path("name").toString();
+//                     String department = actor.path("known_for_department").toString();
+//                     String image = actor.path("profile_path").toString();
+//                     for (JsonNode elem : actor.path("known_for")) {
+//                         Long filmId = elem.path("id").longValue();
+//                     } 
+//                 }
+//             } finally {
 
-    @Override
-    public void loadActors() {
-        int totalPages = 300;
-        for (int page = 1; page < totalPages; page++){
-            System.out.println("ahora busco los resultados de la pagina: "+page);
-            try {
-                String url = "https://api.themoviedb.org/3/person/popular?language=en-US&page=";
-                JsonNode results = tmdbService.loadApiResults(page, url); 
-                for (JsonNode actor : results) {
-                    String name = actor.path("name").toString();
-                    String department = actor.path("known_for_department").toString();
-                    String image = actor.path("profile_path").toString();
-                    for (JsonNode elem : actor.path("known_for")) {
-                        Long filmId = elem.path("id").longValue();
-                    } 
-                }
-            } finally {
-
-                }
-            }
-    }
+//                 }
+//             }
+//     }
 
     @Override
     public void loadFilms() {
         int totalPages = 1000;
         
+        
         for (int page = 1; page < totalPages; page++){
             System.out.println("ahora busco los resultados de la pagina: "+page);
             try {
-                String url = "https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=";
-                JsonNode results = tmdbService.loadApiResults(page, url); 
-                for (JsonNode movie : results) {
-                        // Extraer los datos de cada película
-                        int categoryId = movie.path("genre_ids").get(0).asInt();
-                        System.out.println("Category: " + categoryId);
+                // String url = "https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=";
+                // List<JsonNode> apiResults = tmdbService.loadApiResults(page, url);
+                // JsonNode results = apiResults.get(0);
 
-                        String releaseDate = movie.path("release_date").asText().substring(0,4);
+                // if (results == null || results.isEmpty()) {
+                //     System.out.println("No se encontraron resultados en la página: " + page);
+                //     break;
+                // }
+
+                MovieResultsPage resultsPage = null;
+                //tmdbService.loadResultsPage(page);
+                try {
+                    resultsPage = tmdbService.loadResultsPage(page);
+                } catch (Exception e) {
+                    System.out.println("Error al obtener la página: " + page);
+                    continue;
+                }
+                if (resultsPage == null) {
+                    continue;
+                }
+
+                List<Movie> results = resultsPage.getResults();
+
+                for (Movie movie : results) {
+                        // Extraer los datos de cada película
+                        int categoryId = movie.getGenreIds().get(0);
+                        String category = categoryService.getCategoryById(Long.valueOf(categoryId)).orElseThrow(() -> new RuntimeException("category not found")).getDescription();
+                        System.out.println("Category: " + category);
+
+                        String title = movie.getTitle();
+                        System.out.println("Title: " + title);
+
+                        String releaseDate = movie.getReleaseDate().substring(0, 4);
                         System.out.println("Release Date: " + releaseDate);
 
-                        String title = movie.path("title").asText();
-                        System.out.println("Release Date: " + title);
+                        String overview = movie.getOverview();
+                        System.out.println("Overview: " + overview);
 
-                        System.out.println("ahora vamos a enviar el metodo de filmService para crear la pelicula");
-                        String category = categoryService.getCategoryById(Long.valueOf(categoryId)).orElseThrow(() -> new RuntimeException("category not found")).getDescription();
+                        String posterPath = movie.getPosterPath();
+                        System.out.println("Poster Path: " + posterPath);
 
+                        int tmdbId = movie.getId();
+                        System.out.println("TMDb ID: " + tmdbId);
+                        
+                        MovieDb movieDetails = null;
                         try {
-                            createFilm(title, category, Integer.parseInt(releaseDate));
-
-                        } catch (FilmDuplicateException e) {
-                            e.printStackTrace();
-                            System.out.println("no se pudo crear la pelicula");
+                            movieDetails = tmdbService.getMovieById(tmdbId);
+                        } catch (Exception e) {
+                            System.out.println("Error: " + e.getMessage());
+                            continue;
                         }
+                        if (movieDetails == null) {
+                            continue;
+                        }
+
+                        String imdbId = movieDetails.getImdbID();
+                        System.out.println("IMDB ID: " + imdbId);
+                        
+                        Integer budget = movieDetails.getBudget();
+                        System.out.println("Budget: " + budget);
+                        
+                        Long revenue = movieDetails.getRevenue();
+                        System.out.println("Revenue: " + revenue);
+
+                        Integer duration = movieDetails.getRuntime();
+                        System.out.println("Duration: " + duration);
+
+                        List<String> filmRatingResults = imdbDataSheet.getFilmRatingFromImdb(imdbId);
+                        if (filmRatingResults == null || filmRatingResults.size() < 3) {
+                            System.out.println("Ratings no disponibles o incompletos para IMDB ID: " + imdbId);
+                            continue;
+                        }
+                        System.out.println(filmRatingResults);
+                        // filmRatingResults[1] == rating
+                        // filmRatingResults[2] == vote count
+
+                        Film film = new Film();
+                        film.setTitle(title);
+                        film.setCategory(category);
+                        film.setReleaseYear(Integer.parseInt(releaseDate));
+                        film.setBudget(budget);
+                        film.setRevenue(revenue);
+                        film.setDuration(duration);
+                        film.setAudienceRating(1);
+                        film.setCriticRating(Double.parseDouble(filmRatingResults.get(1)));
+                        film.setVoteCount(Integer.parseInt(filmRatingResults.get(2)));
+                        film.setPosterPath(posterPath);
+                        film.setDescription(overview);
+                        film.setImdbId(imdbId);
+
+                        List<Film> findFilm = filmRepository.findFilmsDuplicated(imdbId);
+                        System.out.println(findFilm);
+                        if (findFilm.size() == 0) {
+
+                            System.out.println("no se encontro otra pelicula con titulo, duracion y categoria: " + title + " " + duration + " " + category);
+                            filmRepository.save(film);
+                            List<String> filmActorsResults = imdbDataSheet.getActorsFromImdb(imdbId);
+                            if (filmActorsResults == null) {
+                                System.out.println("actores no disponibles para IMDB ID: " + imdbId);
+                                continue;
+                            }
+                            System.out.println(filmActorsResults);
+                            for (String actorImdbId : filmActorsResults) {
+                                try {
+                                    System.out.println("actualmente intentando crear al actor: " + actorImdbId);
+                                    List<FindPerson> findActor = tmdbService.getFindResultsFromImdbId(actorImdbId).getPersonResults();
+                                    if (findActor.size() > 0) {
+                                    FindPerson actorFound = findActor.get(0);
+
+                                    Actor actor= actorService.getOrCreateActor(actorImdbId,actorFound.getName(),actorFound.getProfilePath());
+                                    
+                                    film.getActors().add(actor);
+                                    actor.getFilmsActed().add(film);
+                                    filmRepository.save(film);
+                                    } else {
+                                        continue;
+                                    }
+                                } catch (Exception e) {
+                                    System.out.println("Error al crear actor: " + actorImdbId+ ". Detalles: " + e.getMessage());
+                                    continue;
+                                }
+                            }
+                            filmRepository.save(film);
+                            totalPages = Math.min(totalPages, (resultsPage.getTotalPages()));
+                    }
+
+                        // Guardar los datos en la base de datos
+                        // int categoryId = movie.path("genre_ids").get(0).asInt();
+                        
+
+                        // String releaseDate = movie.path("release_date").asText().substring(0,4);
+                        // System.out.println("Release Date: " + releaseDate);
+
+                        // String title = movie.path("title").asText();
+                        // System.out.println("title: " + title);
+
+                        // System.out.println("ahora vamos a enviar el metodo de filmService para crear la pelicula");
+                        // String category = categoryService.getCategoryById(Long.valueOf(categoryId)).orElseThrow(() -> new RuntimeException("category not found")).getDescription();
+
+                        // String imagePath = movie.path("poster_path").toString();
+                        // System.out.println("Image Path: " + imagePath);
+
+                        // String description = movie.path("overview").toString();
+                        // System.out.println("Description: " + description);
+
+                        // int tmdbId = movie.path("id").asInt();
+                        // System.out.println("TMDB ID: " + tmdbId);
+
+
+                        // System.out.println("the film " + title + " got a vote count of: " + movie.path("vote_count").asInt());
+
+                        //MovieDb movieDetails = tmdbService.getMovieById(tmdbId);
                     }
             }
             finally {
                 System.out.println("no se pudo obtener 'results'");
             }
             
-            }
+    }
 }
 }
