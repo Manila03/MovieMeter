@@ -1,8 +1,9 @@
 package com.uade.tpo.demo.controllers;
 
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
@@ -40,13 +41,23 @@ public class CriticsController {
     }
 
     @GetMapping("user/{userId}")
-    public ResponseEntity<List<Critic>> getCriticsFromUser (@PathVariable Long userId) {
-        return ResponseEntity.ok(criticService.getCriticsFromUser(userId));
+    public ResponseEntity<Page<Critic>> getCriticsFromUser (
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer size, 
+        @PathVariable Long userId) {
+        if (page == null || size == null)
+            return ResponseEntity.ok(criticService.getCriticsFromUser(PageRequest.of(0, Integer.MAX_VALUE), userId));
+        return ResponseEntity.ok(criticService.getCriticsFromUser(PageRequest.of(page, size), userId));
     }
 
     @GetMapping("film/{filmId}")
-    public ResponseEntity<List<Critic>> getCriticsFromFilm (@PathVariable Long filmId) {
-        return ResponseEntity.ok(criticService.getCriticsFromFilm(filmId));
+    public ResponseEntity<Page<Critic>> getCriticsFromFilm (
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer size,
+        @PathVariable Long filmId) {
+        if (page == null || size == null)
+            return ResponseEntity.ok(criticService.getCriticsFromFilm(PageRequest.of(0, Integer.MAX_VALUE), filmId));
+        return ResponseEntity.ok(criticService.getCriticsFromFilm(PageRequest.of(page, size), filmId));
     }
 
     @DeleteMapping("/del/{criticId}")
