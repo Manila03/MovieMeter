@@ -1,20 +1,35 @@
 package com.uade.tpo.demo.controllers;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
+import java.sql.Blob;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import javax.sql.rowset.serial.SerialBlob;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+
 
 import com.uade.tpo.demo.entity.Film;
+import com.uade.tpo.demo.entity.Image;
 import com.uade.tpo.demo.entity.dto.FilmRequest;
 import com.uade.tpo.demo.exceptions.FilmDuplicateException;
 import com.uade.tpo.demo.service.IMDBDataSheet;
 import com.uade.tpo.demo.service.film.FilmService;
+import com.uade.tpo.demo.service.image.ImageService;
 
 import io.micrometer.core.ipc.http.HttpSender.Response;
 
@@ -32,6 +47,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 public class FilmController {
     @Autowired
     private IMDBDataSheet imdbDataSheet;
+
+    @Autowired
+    private ImageService imageService;
 
     @Autowired
     private FilmService filmService;
@@ -78,6 +96,8 @@ public class FilmController {
         return ResponseEntity.ok(result);
     }
     
+    
+
 
     @GetMapping("/poster/{filmId}")
     public ResponseEntity<String> getFilmPosterPath(@PathVariable Long filmId) {
