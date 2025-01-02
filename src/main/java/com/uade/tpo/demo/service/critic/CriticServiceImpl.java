@@ -3,6 +3,8 @@ package com.uade.tpo.demo.service.critic;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,9 +63,6 @@ public class CriticServiceImpl implements CriticService {
             user.getCritics().add(critic);
             film.getCritics().add(critic);
 
-
-            
-
             // Guarda y retorna la crítica
             Critic newCritic = criticRepository.save(critic);
 
@@ -87,17 +86,12 @@ public class CriticServiceImpl implements CriticService {
         }
     }
 
-
-
-
-    public List<Critic> getCriticsFromUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        return user.getCritics();
+    public Page<Critic> getCriticsFromUser(PageRequest pageRequest, Long userId) {
+        return criticRepository.criticsByUser(pageRequest, userId);
     }
 
-    public List<Critic> getCriticsFromFilm(Long filmId) {
-        Film film = filmRepository.findById(filmId).orElseThrow(() -> new RuntimeException("Film not found"));
-        return film.getCritics();
+    public Page<Critic> getCriticsFromFilm(PageRequest pageRequest, Long filmId) {
+        return criticRepository.allCriticsFromFilm(pageRequest, filmId);
     }
 
     public Critic getCriticFromFilmAndUser(Long userId, Long filmId) {

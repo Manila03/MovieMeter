@@ -3,6 +3,9 @@ package com.uade.tpo.demo.service.film;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+
 import com.uade.tpo.demo.entity.Film;
 import com.uade.tpo.demo.exceptions.FilmDuplicateException;
 
@@ -13,9 +16,9 @@ public interface FilmService{
     
     Optional<Film> getFilmById(Long id);
     
-    List<Film> getBestFilms();
+    Page<Film> getBestFilms(PageRequest pageRequest);
     
-    List<Film> getFilmsByCategory(String category);
+    Page<Film> getFilmsByCategory(PageRequest pageRequest, String category);
     
     Double getFilmCriticRating(Long id);
     

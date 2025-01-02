@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -95,15 +97,15 @@ public class FilmServiceImpl implements FilmService {
 
     
     @Override
-    public List<Film> getBestFilms() {
-        List<Film> bestFilmsSorted = filmRepository.findBestFilms();
-        return bestFilmsSorted.subList(0, Math.min(25, bestFilmsSorted.size()));
+    public Page<Film> getBestFilms(PageRequest pageRequest) {
+        Page<Film> bestFilmsSorted = filmRepository.findBestFilms(pageRequest);
+        return bestFilmsSorted;
+        //return bestFilmsSorted.subList(0, Math.min(25, bestFilmsSorted.size()));
     }
 
     @Override
-    public List<Film> getFilmsByCategory(String category) {
-        List<Film> filmsByCategory = filmRepository.findFilmsByCategory(category);
-        System.out.println(filmsByCategory);
+    public Page<Film> getFilmsByCategory(PageRequest pageRequest, String category) {
+        Page<Film> filmsByCategory = filmRepository.findFilmsByCategory(pageRequest, category);
         return filmsByCategory;
     }
 
@@ -167,10 +169,11 @@ public class FilmServiceImpl implements FilmService {
             return film.get().getRevenue();
     }
 
+    /* 
     @Override
     public Film updateFilmAudienceRating(Long id){
         System.out.println(id);
-        List<Critic> allCriticsFromFilm = criticRepository.allCriticsFromFilm(id);
+        Page<Critic> allCriticsFromFilm = criticRepository.allCriticsFromFilm(id);
         System.out.println(allCriticsFromFilm.size());
         int lenAll = allCriticsFromFilm.size();
         if (lenAll == 0) {
@@ -191,6 +194,46 @@ public class FilmServiceImpl implements FilmService {
             film.setAudienceRating(newAudienceRating);
             filmRepository.save(film);
             return film;
+        }
+    }
+    */
+
+    @Override
+    public Film updateFilmAudienceRating(Long id) {
+        System.out.println("Film ID: " + id);
+
+        // Obtener todas las críticas de la película (con paginación)
+        Page<Critic> allCriticsPage = criticRepository.allCriticsFromFilm(PageRequest.of(0, Integer.MAX_VALUE), id);
+        List<Critic> allCritics = allCriticsPage.getContent(); // Extraer el contenido de la página
+        int lenAll = allCritics.size();
+
+        System.out.println("Total Critics: " + lenAll);
+
+        // Si no hay críticas, establecer el puntaje como 0 o un valor predeterminado
+        if (lenAll == 0) {
+            System.out.println("No critics found");
+            Film film = filmRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Film not found"));
+            film.setAudienceRating(0); // Valor predeterminado
+            return filmRepository.save(film);
+        } else {
+            // Obtener críticas positivas
+            Page<Critic> positiveCriticsPage = criticRepository.positiveCriticsFromFilm(PageRequest.of(0, Integer.MAX_VALUE), id);
+            List<Critic> positiveCritics = positiveCriticsPage.getContent(); // Extraer el contenido de la página
+            int lenPositives = positiveCritics.size();
+
+            System.out.println("Positive Critics: " + lenPositives);
+
+            // Calcular el nuevo puntaje (como porcentaje)
+            int newAudienceRating = Math.round(((float) lenPositives / lenAll) * 100);
+
+            // Actualizar la película
+            Film film = filmRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Film not found"));
+            System.out.println("Film: " + film);
+
+            film.setAudienceRating(newAudienceRating);
+            return filmRepository.save(film);
         }
     }
     
