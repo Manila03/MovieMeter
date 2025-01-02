@@ -26,7 +26,7 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody UserRequest userRequest) {
-        return ResponseEntity.ok(userService.createUser(userRequest.getName(),userRequest.getEmail(),userRequest.getPassword(),userRequest.getRoleId()));
+        return ResponseEntity.ok(userService.createUser(userRequest.getName(),userRequest.getEmail(),userRequest.getPassword()));
     }
     
     @GetMapping("/{userId}")

@@ -5,11 +5,9 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.uade.tpo.demo.entity.Role;
 import com.uade.tpo.demo.entity.User;
 import com.uade.tpo.demo.repository.UserRepository;
 import com.uade.tpo.demo.service.MailService;
-import com.uade.tpo.demo.repository.RoleRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -20,27 +18,21 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private RoleRepository roleRepository;
-
-    @Autowired
     private MailService mailService;
 
-    public User createUser(String name, String email, String password, Long roleId) {
+    public User createUser(String name, String email, String password) {
         // User user = new User(name, email, password);
         // return userRepository.save(user);
         Optional<User> userMatch = userRepository.findByEmail(email);
         if (userMatch.isPresent()) {
             throw new RuntimeException("The email provided already belongs to a user, if it's your's try log in or if you forgot your password click on 'I forgot password'");
         } else {
-            Role role = roleRepository.findById(roleId).orElseThrow(() -> new EntityNotFoundException("Role not found"));
             
             User user = new User();
             user.setUserName(name);
             user.setEmail(email);
             user.setPassword(password);
-            user.setRole(role);
 
-            role.addUser(user);
 
             return userRepository.save(user);
         }

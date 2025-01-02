@@ -1,7 +1,5 @@
 package com.uade.tpo.demo.service.critic;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
