@@ -8,7 +8,6 @@ import com.uade.tpo.demo.entity.Category;
 import com.uade.tpo.demo.entity.dto.CategoryRequest;
 import com.uade.tpo.demo.exceptions.CategoryDuplicateException;
 import com.uade.tpo.demo.service.category.CategoryService;
-import com.uade.tpo.demo.service.category.CategoryServiceImpl;
 
 import java.net.URI;
 import java.util.Optional;
