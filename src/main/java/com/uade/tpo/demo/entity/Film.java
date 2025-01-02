@@ -17,6 +17,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import lombok.Data;
 import lombok.ToString;
 
@@ -84,6 +85,11 @@ public class Film {
 
     @Column
     private String posterPath;
+
+    @OneToOne
+    @JoinColumn(name = "image_id", nullable = true)
+    @JsonManagedReference
+    private Image image;
 
     @Column
     private Integer budget;
