@@ -31,6 +31,7 @@ import com.uade.tpo.demo.entity.dto.FilmRequest;
 import com.uade.tpo.demo.exceptions.FilmDuplicateException;
 import com.uade.tpo.demo.service.IMDBDataSheet;
 import com.uade.tpo.demo.service.film.FilmService;
+import com.uade.tpo.demo.service.image.ImageService;
 
 import io.micrometer.core.ipc.http.HttpSender.Response;
 
@@ -48,6 +49,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 public class FilmController {
     @Autowired
     private IMDBDataSheet imdbDataSheet;
+
+    @Autowired
+    private ImageService imageService;
 
     @Autowired
     private FilmService filmService;
