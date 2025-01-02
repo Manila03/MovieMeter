@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.uade.tpo.demo.entity.Category;
@@ -25,8 +27,8 @@ public class CategoryServiceImpl implements CategoryService {
     // y habiendo declarado @Repository en CategoryRepository
 
     @Override
-    public List<Category> getCategories() {
-        return categoryRepository.findAll();
+    public Page<Category> getCategories(PageRequest pageRequest) {
+        return categoryRepository.findAll(pageRequest);
     }
     
     @Override

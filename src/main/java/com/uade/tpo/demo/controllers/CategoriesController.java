@@ -1,6 +1,7 @@
 package com.uade.tpo.demo.controllers;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.uade.tpo.demo.entity.Category;
@@ -10,10 +11,11 @@ import com.uade.tpo.demo.service.category.CategoryService;
 import com.uade.tpo.demo.service.category.CategoryServiceImpl;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,8 +31,12 @@ public class CategoriesController {
 
 
     @GetMapping
-    public ResponseEntity<List<Category>> getCategories() {
-        return ResponseEntity.ok(categoryService.getCategories());
+    public ResponseEntity<Page<Category>> getCategories(
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer size) {
+        if (page == null || size == null)
+            return ResponseEntity.ok(categoryService.getCategories((PageRequest.of(0, Integer.MAX_VALUE))));
+        return ResponseEntity.ok(categoryService.getCategories(PageRequest.of(page, size)));
     }
 
     @GetMapping("/{categoryId}")

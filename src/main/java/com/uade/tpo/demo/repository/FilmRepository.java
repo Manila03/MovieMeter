@@ -2,6 +2,8 @@ package com.uade.tpo.demo.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,7 +18,7 @@ public interface FilmRepository extends JpaRepository<Film, Long>{
     // y tambien con las operaciones de consulta personalizadas
 
     @Query("SELECT f FROM Film f ORDER BY (f.criticRating) DESC")
-    List<Film> findBestFilms();
+    Page<Film> findBestFilms(PageRequest pageRequest);
 
 
     // IMPORTANTE
@@ -24,7 +26,7 @@ public interface FilmRepository extends JpaRepository<Film, Long>{
     // y luego simplemente busco entre todas las peliculas las que tienen cierto genero utilizando un query de sql
 
     @Query ("SELECT f FROM Film f WHERE f.category = ?1")
-    List<Film> findFilmsByCategory(String category);
+    Page<Film> findFilmsByCategory(PageRequest pageRequest, String category);
 
     @Query("SELECT f FROM Film f WHERE f.title = ?1 AND f.releaseYear = ?2 AND f.category = ?3")
     List<Film> findFilmsDuplicated(String title, Integer releaseYear, String category);

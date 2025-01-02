@@ -1,11 +1,11 @@
 package com.uade.tpo.demo.controllers;
 
 import java.net.URI;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,18 +53,25 @@ public class FilmController {
     }
 
     @GetMapping("/best")
-    public ResponseEntity<List<Film>> getBestFilms(@RequestParam(required = false) Integer criticRating) {
-        List<Film> result = filmService.getBestFilms();
-        return ResponseEntity.ok(result);
+    public ResponseEntity<Page<Film>> getBestFilms(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        if (page == null || size == null)
+            return ResponseEntity.ok(filmService.getBestFilms(PageRequest.of(0, Integer.MAX_VALUE)));
+        return ResponseEntity.ok(filmService.getBestFilms(PageRequest.of(page, size)));
     }
 
     @GetMapping("/category/name/{category}")
     // el path sera en este caso:
     // ... /film/category/{category}
-    public ResponseEntity<List<Film>> getFilmsByCategory(@PathVariable String category) {
-        List<Film> result = filmService.getFilmsByCategory(category);
-        System.out.println(result);
-        return ResponseEntity.ok(result);
+    public ResponseEntity<Page<Film>> getFilmsByCategory(
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer size, 
+        @PathVariable String category) {
+        if (page == null || size == null)
+            return ResponseEntity.ok(filmService.getFilmsByCategory(PageRequest.of(0, Integer.MAX_VALUE), category));
+        
+        return ResponseEntity.ok(filmService.getFilmsByCategory(PageRequest.of(page, size), category));
     }
 
     // @GetMapping("/criticRate/{filmId}")
@@ -72,6 +79,7 @@ public class FilmController {
     //     Double result = filmService.getFilmCriticRating(filmId);
     //     return ResponseEntity.ok(result);
     // }
+
     @GetMapping("/criticRate/{filmId}")
     public ResponseEntity<Double>  getFilmCriticRating(@PathVariable Long filmId) {
         Double result = filmService.getFilmCriticRating(filmId);
@@ -129,11 +137,9 @@ public class FilmController {
         filmService.loadFilms();
     }
     
-
-    
-    // @PutMapping("/update/{filmId}")
-    // public ResponseEntity<Film> updateFilmAudienceRating(@PathVariable Long filmId) {
-    //     return ResponseEntity.ok(filmService.updateFilmAudienceRating(filmId));
-    // }
+    @PutMapping("/update/{filmId}")
+    public ResponseEntity<Film> updateFilmAudienceRating(@PathVariable Long filmId) {
+        return ResponseEntity.ok(filmService.updateFilmAudienceRating(filmId));
+    }
     
 }
