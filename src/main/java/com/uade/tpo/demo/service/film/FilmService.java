@@ -17,6 +17,8 @@ public interface FilmService{
     Optional<Film> getFilmById(Long id);
     
     Page<Film> getBestFilms(PageRequest pageRequest);
+
+    Page<Film> getAllFilms(PageRequest pageRequest);
     
     Page<Film> getFilmsByCategory(PageRequest pageRequest, String category);
     
@@ -45,4 +47,6 @@ public interface FilmService{
     // void loadActors();
     
     void loadFilms();
+
+    
 }
