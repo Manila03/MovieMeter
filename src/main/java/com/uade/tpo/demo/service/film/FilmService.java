@@ -17,7 +17,7 @@ public interface FilmService{
     Optional<Film> getFilmById(Long id);
     
     Page<Film> getBestFilms(PageRequest pageRequest);
-    
+
     Page<Film> getFilmsByCategory(PageRequest pageRequest, String category);
     
     Double getFilmCriticRating(Long id);
@@ -45,4 +45,7 @@ public interface FilmService{
     // void loadActors();
     
     void loadFilms();
+
+    Page<Film> getAllFilms(PageRequest pageRequest);
+    
 }
