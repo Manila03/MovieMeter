@@ -103,6 +103,11 @@ public class FilmServiceImpl implements FilmService {
         //return bestFilmsSorted.subList(0, Math.min(25, bestFilmsSorted.size()));
     }
 
+    public Page<Film> getAllFilms(PageRequest pageRequest) {
+        Page<Film> allFilms = filmRepository.findAll(pageRequest);
+        return allFilms;
+    }
+
     @Override
     public Page<Film> getFilmsByCategory(PageRequest pageRequest, String category) {
         Page<Film> filmsByCategory = filmRepository.findFilmsByCategory(pageRequest, category);
@@ -236,6 +241,8 @@ public class FilmServiceImpl implements FilmService {
             return filmRepository.save(film);
         }
     }
+
+    
     
     
 //     @Override

@@ -8,6 +8,7 @@ import java.net.URL;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.Base64;
+import java.util.List;
 
 import javax.sql.rowset.serial.SerialBlob;
 import javax.sql.rowset.serial.SerialException;
@@ -91,6 +92,37 @@ public class ImageController {
         }
     }
     
+    // Este metodo fue solo usado para cargar las imagenes a la base de datos
+
+    // @GetMapping("/loadAllImages")
+    // public void loadAllImages() {
+    //     List<Film> allFilms = filmService.getAllFilms();
+    //     for (Film film : allFilms) {
+
+    //         String cleanPosterPath = film.getPosterPath().replace("\"", "");
+    //         String completePath = "https://image.tmdb.org/t/p/w500" + cleanPosterPath;
+    //         System.out.println(completePath);
+    //         System.out.println(film.getPosterPath());
+    //         try (InputStream inputStream = new BufferedInputStream(new URL(completePath).openStream());
+    //             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+
+    //                 byte[] buffer = new byte[1024];
+    //                 int bytesRead;
+    //                 while ((bytesRead = inputStream.read(buffer)) != -1) {
+    //                     outputStream.write(buffer, 0, bytesRead);
+    //                 }
+
+    //                 Blob blob = new SerialBlob(outputStream.toByteArray());
+    //                 Image image = Image.builder().image(blob).film(film).build();
+    //                 imageService.create(image, film);
+    //                 System.out.println("created");
+    //         }
+    //         catch (IOException | SQLException e) {
+    //             throw new RuntimeException("Error al procesar la imagen: " + e.getMessage(), e);
+    //         }
+
+    //     }
+    // }
     
     
 }

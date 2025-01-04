@@ -77,6 +77,15 @@ public class FilmController {
         return ResponseEntity.ok(filmService.getBestFilms(PageRequest.of(page, size)));
     }
 
+    @GetMapping("/AllFilms")
+    public ResponseEntity<Page<Film>> getAllFilms(
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer size) {
+    if (page == null || size == null)
+        return ResponseEntity.ok(filmService.getAllFilms(PageRequest.of(0, Integer.MAX_VALUE)));
+    return ResponseEntity.ok(filmService.getAllFilms(PageRequest.of(page, size)));
+    }
+
     @GetMapping("/category/name/{category}")
     // el path sera en este caso:
     // ... /film/category/{category}
@@ -158,13 +167,5 @@ public class FilmController {
     @PutMapping("/update/{filmId}")
     public ResponseEntity<Film> updateFilmAudienceRating(@PathVariable Long filmId) {
         return ResponseEntity.ok(filmService.updateFilmAudienceRating(filmId));
-    }
-    @GetMapping("/AllFilms")
-    public ResponseEntity<Page<Film>> getAllFilms(
-        @RequestParam(required = false) Integer page,
-        @RequestParam(required = false) Integer size) {
-    if (page == null || size == null)
-        return ResponseEntity.ok(filmService.getAllFilms(PageRequest.of(0, Integer.MAX_VALUE)));
-    return ResponseEntity.ok(filmService.getAllFilms(PageRequest.of(page, size)));
     }
 }
