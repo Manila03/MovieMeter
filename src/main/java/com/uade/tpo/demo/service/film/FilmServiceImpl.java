@@ -435,9 +435,4 @@ public class FilmServiceImpl implements FilmService {
             
     }
 }
-    
-    public Page<Film> getAllFilms(PageRequest pageRequest) {
-        Page<Film> allFilms = filmRepository.findAll(pageRequest);
-        return allFilms;
-    }
 }
