@@ -33,5 +33,7 @@ public interface FilmRepository extends JpaRepository<Film, Long>{
 
     @Query("SELECT f FROM Film f WHERE f.imdbId = ?1")
     List<Film> findFilmsDuplicated(String imdbId);
-
+    
+    @Query("SELECT f FROM Film f ORDER BY f.id DESC ")
+    Page<Film> findLastFilms(PageRequest pageRequest);
 }

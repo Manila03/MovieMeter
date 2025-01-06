@@ -47,4 +47,7 @@ public interface FilmService{
     // void loadActors();
     
     void loadFilms();
+
+    Page<Film> getLastFilms(PageRequest pageRequest);
+    
 }
