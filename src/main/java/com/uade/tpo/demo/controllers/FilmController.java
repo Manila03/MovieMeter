@@ -168,4 +168,13 @@ public class FilmController {
     public ResponseEntity<Film> updateFilmAudienceRating(@PathVariable Long filmId) {
         return ResponseEntity.ok(filmService.updateFilmAudienceRating(filmId));
     }
+
+    @GetMapping("/getLastFilms")
+    public ResponseEntity<Page<Film>> getLastFilms(
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer size) {
+        if (page == null || size == null)
+            return ResponseEntity.ok(filmService.getLastFilms(PageRequest.of(0, Integer.MAX_VALUE)));
+        return ResponseEntity.ok(filmService.getLastFilms(PageRequest.of(page, size)));
+    }
 }

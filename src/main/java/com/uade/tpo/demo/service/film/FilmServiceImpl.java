@@ -435,4 +435,7 @@ public class FilmServiceImpl implements FilmService {
             
     }
 }
+    public Page<Film> getLastFilms(PageRequest pageRequest) {
+        return filmRepository.findLastFilms(pageRequest);
+    }
 }
