@@ -11,6 +11,7 @@ import com.uade.tpo.demo.entity.Critic;
 import com.uade.tpo.demo.entity.dto.CriticRequest;
 import com.uade.tpo.demo.service.critic.CriticService;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 
 @RestController
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true", allowedHeaders = "*")
 @RequestMapping("critic")
 public class CriticsController {
     @Autowired

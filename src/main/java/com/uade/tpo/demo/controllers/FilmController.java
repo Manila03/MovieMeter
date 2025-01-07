@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.uade.tpo.demo.entity.Film;
 import com.uade.tpo.demo.entity.Image;
 import com.uade.tpo.demo.entity.dto.FilmRequest;
+import com.uade.tpo.demo.entity.dto.FilmResponse;
 import com.uade.tpo.demo.exceptions.FilmDuplicateException;
 import com.uade.tpo.demo.service.IMDBDataSheet;
 import com.uade.tpo.demo.service.film.FilmService;
@@ -37,6 +38,7 @@ import io.micrometer.core.ipc.http.HttpSender.Response;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -44,6 +46,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 
 
 @RestController
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true", allowedHeaders = "*")
 @RequestMapping("films")
 public class FilmController {
     @Autowired
@@ -59,17 +62,13 @@ public class FilmController {
     }
     
     @GetMapping("/{filmId}")
-    public ResponseEntity<Film> getFilmById(@PathVariable Long filmId) {
-        Optional<Film> result = filmService.getFilmById(filmId);
-        if (result.isPresent()) {
-            return ResponseEntity.ok(result.get());
-        } else {
-            return ResponseEntity.noContent().build();
-        }
+    public ResponseEntity<FilmResponse> getFilmById(@PathVariable Long filmId) {
+        FilmResponse result = filmService.getFilmById(filmId);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/best")
-    public ResponseEntity<Page<Film>> getBestFilms(
+    public ResponseEntity<Page<FilmResponse>> getBestFilms(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
         if (page == null || size == null)
@@ -78,18 +77,19 @@ public class FilmController {
     }
 
     @GetMapping("/AllFilms")
-    public ResponseEntity<Page<Film>> getAllFilms(
+    public ResponseEntity<Page<FilmResponse>> getAllFilms(
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer size) {
     if (page == null || size == null)
         return ResponseEntity.ok(filmService.getAllFilms(PageRequest.of(0, Integer.MAX_VALUE)));
+    System.out.println(filmService.getAllFilms(PageRequest.of(page, size)));
     return ResponseEntity.ok(filmService.getAllFilms(PageRequest.of(page, size)));
     }
 
     @GetMapping("/category/name/{category}")
     // el path sera en este caso:
     // ... /film/category/{category}
-    public ResponseEntity<Page<Film>> getFilmsByCategory(
+    public ResponseEntity<Page<FilmResponse>> getFilmsByCategory(
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer size, 
         @PathVariable String category) {
@@ -99,60 +99,73 @@ public class FilmController {
         return ResponseEntity.ok(filmService.getFilmsByCategory(PageRequest.of(page, size), category));
     }
 
+    @PutMapping("/update/{filmId}")
+    public ResponseEntity<Film> updateFilmAudienceRating(@PathVariable Long filmId) {
+        return ResponseEntity.ok(filmService.updateFilmAudienceRating(filmId));
+    }
+
+    @GetMapping("/getLastFilms")
+    public ResponseEntity<Page<FilmResponse>> getLastFilms(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        System.out.println("Page: " + page + ", Size: " + size);
+        if (page == null || size == null) {
+            System.out.println("got into the if");
+            return ResponseEntity.ok(filmService.getLastFilms(PageRequest.of(0, Integer.MAX_VALUE)));
+            
+        }
+        System.out.println("got into the else");
+        Page<FilmResponse> filmsPage = filmService.getLastFilms(PageRequest.of(page, size));
+        return ResponseEntity.ok(filmsPage);
+    }
     // @GetMapping("/criticRate/{filmId}")
     // public ResponseEntity<Double>  getFilmCriticRating(@PathVariable Long filmId) {
     //     Double result = filmService.getFilmCriticRating(filmId);
     //     return ResponseEntity.ok(result);
     // }
-
-    @GetMapping("/criticRate/{filmId}")
-    public ResponseEntity<Double>  getFilmCriticRating(@PathVariable Long filmId) {
-        Double result = filmService.getFilmCriticRating(filmId);
-        return ResponseEntity.ok(result);
-    }
     
     
 
 
-    @GetMapping("/poster/{filmId}")
-    public ResponseEntity<String> getFilmPosterPath(@PathVariable Long filmId) {
-        return ResponseEntity.ok(filmService.getFilmPosterPath(filmId));
-    }
+    // @GetMapping("/poster/{filmId}")
+    // public ResponseEntity<String> getFilmPosterPath(@PathVariable Long filmId) {
+    //     return ResponseEntity.ok(filmService.getFilmPosterPath(filmId));
+    // }
 
-    @GetMapping("/category/{filmId}")
-    public ResponseEntity<String> getFilmCategory(@PathVariable Long filmId) {
-        return ResponseEntity.ok(filmService.getFilmCategory(filmId));
-    }
+    // @GetMapping("/category/{filmId}")
+    // public ResponseEntity<String> getFilmCategory(@PathVariable Long filmId) {
+    //     return ResponseEntity.ok(filmService.getFilmCategory(filmId));
+    // }
 
-    @GetMapping("/description/{filmId}")
-    public ResponseEntity<String> getFilmDescription(@PathVariable Long filmId) {
-        return ResponseEntity.ok(filmService.getFilmDescription(filmId));
-    }
+    // @GetMapping("/description/{filmId}")
+    // public ResponseEntity<String> getFilmDescription(@PathVariable Long filmId) {
+    //     return ResponseEntity.ok(filmService.getFilmDescription(filmId));
+    // }
 
-    @GetMapping("/title/{filmId}")
-    public ResponseEntity<String> getFilmTitle(@PathVariable Long filmId) {
-        return ResponseEntity.ok(filmService.getFilmTitle(filmId));
-    }
+    // @GetMapping("/title/{filmId}")
+    // public ResponseEntity<String> getFilmTitle(@PathVariable Long filmId) {
+    //     return ResponseEntity.ok(filmService.getFilmTitle(filmId));
+    // }
 
-    @GetMapping("/releaseYear/{filmId}")
-    public ResponseEntity<Integer> getFilmReleaseYear(@PathVariable Long filmId) {
-        return ResponseEntity.ok(filmService.getFilmReleaseYear(filmId));
-    }
+    // @GetMapping("/releaseYear/{filmId}")
+    // public ResponseEntity<Integer> getFilmReleaseYear(@PathVariable Long filmId) {
+    //     return ResponseEntity.ok(filmService.getFilmReleaseYear(filmId));
+    // }
 
-    @GetMapping("/duration/{filmId}")
-    public ResponseEntity<Integer> getFilmDuration(@PathVariable Long filmId) {
-        return ResponseEntity.ok(filmService.getFilmDuration(filmId));
-    }
+    // @GetMapping("/duration/{filmId}")
+    // public ResponseEntity<Integer> getFilmDuration(@PathVariable Long filmId) {
+    //     return ResponseEntity.ok(filmService.getFilmDuration(filmId));
+    // }
 
-    @GetMapping("/budget/{filmId}")
-    public ResponseEntity<Integer> getFilmBudget(@PathVariable Long filmId) {
-        return ResponseEntity.ok(filmService.getFilmBudget(filmId));
-    }
+    // @GetMapping("/budget/{filmId}")
+    // public ResponseEntity<Integer> getFilmBudget(@PathVariable Long filmId) {
+    //     return ResponseEntity.ok(filmService.getFilmBudget(filmId));
+    // }
 
-    @GetMapping("/revenue/{filmId}")
-    public ResponseEntity<Long> getFilmRevenue(@PathVariable Long filmId) {
-        return ResponseEntity.ok(filmService.getFilmRevenue(filmId));
-    }
+    // @GetMapping("/revenue/{filmId}")
+    // public ResponseEntity<Long> getFilmRevenue(@PathVariable Long filmId) {
+    //     return ResponseEntity.ok(filmService.getFilmRevenue(filmId));
+    // }
 
     // @GetMapping("/loadFilms")
     // public void loadFilms() {
@@ -164,17 +177,5 @@ public class FilmController {
         filmService.loadFilms();
     }
     
-    @PutMapping("/update/{filmId}")
-    public ResponseEntity<Film> updateFilmAudienceRating(@PathVariable Long filmId) {
-        return ResponseEntity.ok(filmService.updateFilmAudienceRating(filmId));
-    }
 
-    @GetMapping("/getLastFilms")
-    public ResponseEntity<Page<Film>> getLastFilms(
-        @RequestParam(required = false) Integer page,
-        @RequestParam(required = false) Integer size) {
-        if (page == null || size == null)
-            return ResponseEntity.ok(filmService.getLastFilms(PageRequest.of(0, Integer.MAX_VALUE)));
-        return ResponseEntity.ok(filmService.getLastFilms(PageRequest.of(page, size)));
-    }
 }
