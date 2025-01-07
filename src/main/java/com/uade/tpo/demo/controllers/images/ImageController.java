@@ -45,7 +45,8 @@ public class ImageController {
     @Autowired
     private FilmService filmService;
 
-    @GetMapping
+    @CrossOrigin
+    @GetMapping()
     public ResponseEntity<ImageResponse> displayImage(@RequestParam("id") long id) throws IOException, SQLException {
         Image image = imageService.viewById(id);
         String encodedString = Base64.getEncoder()
@@ -53,7 +54,7 @@ public class ImageController {
         return ResponseEntity.ok().body(ImageResponse.builder().file(encodedString).id(id).build());
     }
     
-    @PostMapping
+    @PostMapping()
     public String addImagePost(AddFileRequest request) throws IOException, SerialException, SQLException {
         byte[] bytes = request.getFile().getBytes();
         Blob blob = new javax.sql.rowset.serial.SerialBlob(bytes);
@@ -66,31 +67,31 @@ public class ImageController {
         return imageService.deleteImage(id);
     }
 
-    @GetMapping("/loadImage/{id}")
-    public String giveImage(@PathVariable Long id) {
-        Film film = filmService.getFilmById(id).get();
-        String cleanPosterPath = film.getPosterPath().replace("\"", "");
-        String completePath = "https://image.tmdb.org/t/p/w500" + cleanPosterPath;
-        System.out.println(completePath);
-        System.out.println(film.getPosterPath());
-        try (InputStream inputStream = new BufferedInputStream(new URL(completePath).openStream());
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+    // @GetMapping("/loadImage/{id}")
+    // public String giveImage(@PathVariable Long id) {
+    //     Film film = filmService.getFilmById(id);
+    //     String cleanPosterPath = film.getPosterPath().replace("\"", "");
+    //     String completePath = "https://image.tmdb.org/t/p/w500" + cleanPosterPath;
+    //     System.out.println(completePath);
+    //     System.out.println(film.getPosterPath());
+    //     try (InputStream inputStream = new BufferedInputStream(new URL(completePath).openStream());
+    //         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = inputStream.read(buffer)) != -1) {
-                    outputStream.write(buffer, 0, bytesRead);
-                }
+    //             byte[] buffer = new byte[1024];
+    //             int bytesRead;
+    //             while ((bytesRead = inputStream.read(buffer)) != -1) {
+    //                 outputStream.write(buffer, 0, bytesRead);
+    //             }
 
-                Blob blob = new SerialBlob(outputStream.toByteArray());
-                Image image = Image.builder().image(blob).film(film).build();
-                imageService.create(image, film);
-                return "created";
-        }
-        catch (IOException | SQLException e) {
-        throw new RuntimeException("Error al procesar la imagen: " + e.getMessage(), e);
-        }
-    }
+    //             Blob blob = new SerialBlob(outputStream.toByteArray());
+    //             Image image = Image.builder().image(blob).film(film).build();
+    //             imageService.create(image, film);
+    //             return "created";
+    //     }
+    //     catch (IOException | SQLException e) {
+    //     throw new RuntimeException("Error al procesar la imagen: " + e.getMessage(), e);
+    //     }
+    // }
     
     // Este metodo fue solo usado para cargar las imagenes a la base de datos
 

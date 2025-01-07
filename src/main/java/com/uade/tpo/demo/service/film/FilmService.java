@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 import com.uade.tpo.demo.entity.Film;
+import com.uade.tpo.demo.entity.dto.FilmResponse;
 import com.uade.tpo.demo.exceptions.FilmDuplicateException;
 
 public interface FilmService{
@@ -14,40 +15,42 @@ public interface FilmService{
 
     // public Film createFilmFromData(String title, String category, Integer releaseYear)
     
-    Optional<Film> getFilmById(Long id);
+    FilmResponse getFilmById(Long id);
     
-    Page<Film> getBestFilms(PageRequest pageRequest);
+    Page<FilmResponse> getBestFilms(PageRequest pageRequest);
 
-    Page<Film> getAllFilms(PageRequest pageRequest);
+    Page<FilmResponse> getAllFilms(PageRequest pageRequest);
     
-    Page<Film> getFilmsByCategory(PageRequest pageRequest, String category);
+    Page<FilmResponse> getFilmsByCategory(PageRequest pageRequest, String category);
     
-    Double getFilmCriticRating(Long id);
+    // Double getFilmCriticRating(Long id);
     
-    String getFilmPosterPath(Long id);
+    // String getFilmPosterPath(Long id);
 
-    String getFilmCategory(Long id);
+    // String getFilmCategory(Long id);
 
-    String getFilmDescription(Long id);
+    // String getFilmDescription(Long id);
 
-    String getFilmTitle(Long id);
+    // String getFilmTitle(Long id);
 
-    Integer getFilmReleaseYear(Long id);
+    // Integer getFilmReleaseYear(Long id);
 
-    Integer getFilmDuration(Long id);
+    // Integer getFilmDuration(Long id);
 
-    Integer getFilmBudget(Long id);
+    // Integer getFilmBudget(Long id);
 
-    Long getFilmRevenue(Long id);
+    // Long getFilmRevenue(Long id);
+
+    Integer getFilmAudienceRating(Long id);
     
     Film updateFilmAudienceRating(Long id);
 
-    Integer getFilmAudienceRating(Long id);
+    
 
     // void loadActors();
     
     void loadFilms();
 
-    Page<Film> getLastFilms(PageRequest pageRequest);
+    Page<FilmResponse> getLastFilms(PageRequest pageRequest);
     
 }

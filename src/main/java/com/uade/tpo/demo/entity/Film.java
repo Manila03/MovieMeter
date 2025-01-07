@@ -3,6 +3,7 @@ package com.uade.tpo.demo.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import info.movito.themoviedbapi.model.movies.Cast;
@@ -88,7 +89,6 @@ public class Film {
 
     @OneToOne
     @JoinColumn(name = "image_id", nullable = true)
-    @JsonManagedReference
     private Image image;
 
     @Column

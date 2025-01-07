@@ -1,5 +1,7 @@
 package com.uade.tpo.demo.service.film;
 
+import java.sql.Blob;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,6 +14,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.uade.tpo.demo.entity.Actor;
 import com.uade.tpo.demo.entity.Critic;
 import com.uade.tpo.demo.entity.Film;
+import com.uade.tpo.demo.entity.dto.FilmResponse;
 import com.uade.tpo.demo.exceptions.FilmDuplicateException;
 import com.uade.tpo.demo.repository.ActorRepository;
 import com.uade.tpo.demo.repository.CriticRepository;
@@ -91,33 +94,130 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public Optional<Film> getFilmById(Long id) {
-        return filmRepository.findById(id);
+    public FilmResponse getFilmById(Long id) {
+
+        Optional<Film> existingFilm = filmRepository.findById(id);
+        FilmResponse filmResponse = new FilmResponse();
+        if (existingFilm.isPresent()) {
+            Film film = existingFilm.get();
+            filmResponse.setId(film.getId());
+            filmResponse.setCategory(film.getCategory());
+            filmResponse.setReleaseYear(film.getReleaseYear());
+            filmResponse.setTitle(film.getTitle());
+            
+        
+        String encodedString;
+        try {
+            // imageBlob es el resultado de pedirle a la entity image su image (su Blob)
+            Blob imageBlob = film.getImage().getImage();
+
+            int imageLength = (int) imageBlob.length();
+
+            byte[] imageBytes = imageBlob.getBytes(1, imageLength);
+
+            encodedString = Base64.getEncoder().encodeToString(imageBytes);
+
+            filmResponse.setImage(encodedString);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return filmResponse;
+        } else {
+            throw new RuntimeException("film no encontrado con id: " + id);
+        }
     }
 
     
     @Override
-    public Page<Film> getBestFilms(PageRequest pageRequest) {
+    public Page<FilmResponse> getBestFilms(PageRequest pageRequest) {
         Page<Film> bestFilmsSorted = filmRepository.findBestFilms(pageRequest);
-        return bestFilmsSorted;
+        return bestFilmsSorted.map(film -> {
+            FilmResponse filmResponse = new FilmResponse();
+            filmResponse.setId(film.getId());
+            filmResponse.setCategory(film.getCategory());
+            filmResponse.setReleaseYear(film.getReleaseYear());
+            filmResponse.setTitle(film.getTitle());
+            
+        
+        String encodedString;
+        try {
+            // imageBlob es el resultado de pedirle a la entity image su image (su Blob)
+            Blob imageBlob = film.getImage().getImage();
+
+            int imageLength = (int) imageBlob.length();
+
+            byte[] imageBytes = imageBlob.getBytes(1, imageLength);
+
+            encodedString = Base64.getEncoder().encodeToString(imageBytes);
+
+            filmResponse.setImage(encodedString);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return filmResponse;
+    }
+        );
         //return bestFilmsSorted.subList(0, Math.min(25, bestFilmsSorted.size()));
     }
 
-    public Page<Film> getAllFilms(PageRequest pageRequest) {
+    public Page<FilmResponse> getAllFilms(PageRequest pageRequest) {
         Page<Film> allFilms = filmRepository.findAll(pageRequest);
-        return allFilms;
+        return allFilms.map(film -> {
+            FilmResponse filmResponse = new FilmResponse();
+            filmResponse.setId(film.getId());
+            filmResponse.setCategory(film.getCategory());
+            filmResponse.setReleaseYear(film.getReleaseYear());
+            filmResponse.setTitle(film.getTitle());
+            
+        
+        String encodedString;
+        try {
+            // imageBlob es el resultado de pedirle a la entity image su image (su Blob)
+            Blob imageBlob = film.getImage().getImage();
+
+            int imageLength = (int) imageBlob.length();
+
+            byte[] imageBytes = imageBlob.getBytes(1, imageLength);
+
+            encodedString = Base64.getEncoder().encodeToString(imageBytes);
+
+            filmResponse.setImage(encodedString);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return filmResponse;
+        });
     }
 
     @Override
-    public Page<Film> getFilmsByCategory(PageRequest pageRequest, String category) {
+    public Page<FilmResponse> getFilmsByCategory(PageRequest pageRequest, String category) {
         Page<Film> filmsByCategory = filmRepository.findFilmsByCategory(pageRequest, category);
-        return filmsByCategory;
-    }
+        return filmsByCategory.map(film -> {
+            FilmResponse filmResponse = new FilmResponse();
+            filmResponse.setId(film.getId());
+            filmResponse.setCategory(film.getCategory());
+            filmResponse.setReleaseYear(film.getReleaseYear());
+            filmResponse.setTitle(film.getTitle());
+            
+        
+        String encodedString;
+        try {
+            // imageBlob es el resultado de pedirle a la entity image su image (su Blob)
+            Blob imageBlob = film.getImage().getImage();
 
-    @Override
-    public Double getFilmCriticRating(Long id) {
-        Optional<Film> film = filmRepository.findById(id);
-            return film.get().getCriticRating();
+            int imageLength = (int) imageBlob.length();
+
+            byte[] imageBytes = imageBlob.getBytes(1, imageLength);
+
+            encodedString = Base64.getEncoder().encodeToString(imageBytes);
+
+            filmResponse.setImage(encodedString);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return filmResponse;
+        });
     }
 
     @Override
@@ -125,54 +225,62 @@ public class FilmServiceImpl implements FilmService {
         Optional<Film> film = filmRepository.findById(id);
             return film.get().getAudienceRating();
     }
+    
+    // @Override
+    // public Double getFilmCriticRating(Long id) {
+    //     Optional<Film> film = filmRepository.findById(id);
+    //         return film.get().getCriticRating();
+    // }
 
-    @Override
-    public String getFilmPosterPath(Long id) {
-        Optional<Film> film = filmRepository.findById(id);
-            return film.get().getPosterPath();
-    }
+    
 
-    @Override
-    public String getFilmCategory(Long id){
-        Optional<Film> film = filmRepository.findById(id);
-            return film.get().getCategory();
-    }
+    // @Override
+    // public String getFilmPosterPath(Long id) {
+    //     Optional<Film> film = filmRepository.findById(id);
+    //         return film.get().getPosterPath();
+    // }
 
-    @Override
-    public String getFilmDescription(Long id){
-        Optional<Film> film = filmRepository.findById(id);
-            return film.get().getDescription();
-    }
+    // @Override
+    // public String getFilmCategory(Long id){
+    //     Optional<Film> film = filmRepository.findById(id);
+    //         return film.get().getCategory();
+    // }
 
-    @Override
-    public String getFilmTitle(Long id){
-        Optional<Film> film = filmRepository.findById(id);
-            return film.get().getTitle();
-    }
+    // @Override
+    // public String getFilmDescription(Long id){
+    //     Optional<Film> film = filmRepository.findById(id);
+    //         return film.get().getDescription();
+    // }
 
-    @Override
-    public Integer getFilmReleaseYear(Long id){
-        Optional<Film> film = filmRepository.findById(id);
-            return film.get().getReleaseYear();
-    }
+    // @Override
+    // public String getFilmTitle(Long id){
+    //     Optional<Film> film = filmRepository.findById(id);
+    //         return film.get().getTitle();
+    // }
 
-    @Override
-    public Integer getFilmDuration(Long id){
-        Optional<Film> film = filmRepository.findById(id);
-            return film.get().getDuration();
-    }
+    // @Override
+    // public Integer getFilmReleaseYear(Long id){
+    //     Optional<Film> film = filmRepository.findById(id);
+    //         return film.get().getReleaseYear();
+    // }
 
-    @Override
-    public Integer getFilmBudget(Long id){
-        Optional<Film> film = filmRepository.findById(id);
-            return film.get().getBudget();
-    }
+    // @Override
+    // public Integer getFilmDuration(Long id){
+    //     Optional<Film> film = filmRepository.findById(id);
+    //         return film.get().getDuration();
+    // }
 
-    @Override
-    public Long getFilmRevenue(Long id){
-        Optional<Film> film = filmRepository.findById(id);
-            return film.get().getRevenue();
-    }
+    // @Override
+    // public Integer getFilmBudget(Long id){
+    //     Optional<Film> film = filmRepository.findById(id);
+    //         return film.get().getBudget();
+    // }
+
+    // @Override
+    // public Long getFilmRevenue(Long id){
+    //     Optional<Film> film = filmRepository.findById(id);
+    //         return film.get().getRevenue();
+    // }
 
     /* 
     @Override
@@ -435,7 +543,32 @@ public class FilmServiceImpl implements FilmService {
             
     }
 }
-    public Page<Film> getLastFilms(PageRequest pageRequest) {
-        return filmRepository.findLastFilms(pageRequest);
+    public Page<FilmResponse> getLastFilms(PageRequest pageRequest) {
+        Page<Film> lastFilmsPageable = filmRepository.findLastFilms(pageRequest);
+        return lastFilmsPageable.map(film -> {
+            FilmResponse filmResponse = new FilmResponse();
+            filmResponse.setId(film.getId());
+            filmResponse.setCategory(film.getCategory());
+            filmResponse.setReleaseYear(film.getReleaseYear());
+            filmResponse.setTitle(film.getTitle());
+            
+        
+        String encodedString;
+        try {
+            // imageBlob es el resultado de pedirle a la entity image su image (su Blob)
+            Blob imageBlob = film.getImage().getImage();
+
+            int imageLength = (int) imageBlob.length();
+
+            byte[] imageBytes = imageBlob.getBytes(1, imageLength);
+
+            encodedString = Base64.getEncoder().encodeToString(imageBytes);
+
+            filmResponse.setImage(encodedString);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return filmResponse;
+        });
     }
 }

@@ -7,6 +7,7 @@ import com.uade.tpo.demo.entity.dto.MailRequest;
 import com.uade.tpo.demo.service.MailService;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true", allowedHeaders = "*")
 @RequestMapping("/email")
 public class EmailController {
 
