@@ -13,4 +13,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // el jparepository ya tiene los metodos basicos de crear, eliminar, actualizar y buscar
     @Query("SELECT u FROM User u WHERE u.email = ?1")
     Optional<User> findByEmail(String email);
+
 }
