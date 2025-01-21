@@ -37,6 +37,7 @@ public class SecurityConfig {
                                 .csrf(AbstractHttpConfigurer::disable)
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                                 .authorizeHttpRequests(req -> req.requestMatchers("/api/v1/auth/**").permitAll()
+                                                                //Permite el acceso sin autenticación a las rutas relacionadas con la autenticación (como el login)
                                         .requestMatchers("/error/**").permitAll()
                                         .requestMatchers("/email/send").permitAll()
                                         .requestMatchers("/films/**").permitAll()
@@ -110,10 +111,11 @@ public class SecurityConfig {
 
                                         .anyRequest()
                                         .authenticated())
-                                .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
+                                .sessionManagement(session -> session.sessionCreationPolicy(STATELESS)) 
+                                //Configura la política de la sesión para que sea stateless, es decir, no se usen sesiones basadas en servidor (típico para aplicaciones que usan JWT)
                                 .authenticationProvider(authenticationProvider)
                                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class
-                                
+                                //Este filtro se encarga de validar el JWT en cada solicitud.
                 );
 
                 return http.build();

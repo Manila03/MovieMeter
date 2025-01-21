@@ -25,20 +25,22 @@ public class JwtService {
     }
 
     private String buildToken(
+        //Crea el token JWT utilizando la biblioteca io.jsonwebtoken (JJWT)
             UserDetails userDetails,
             long expiration) {
         return Jwts
                 .builder()
                 .subject(userDetails.getUsername()) // prueba@hotmail.com
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .claim("Gisele", 1234567)                   //REVISAR
+                //.claim("Gisele", 1234567)
+                .claim("roles", userDetails.getAuthorities())
                 .expiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(getSecretKey())
-                .compact();
+                .signWith(getSecretKey()) //El token se firma usando la clave secreta.
+                .compact(); // El token se firma usando la clave secreta.
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractClaim(token, Claims::getSubject);
+        final String username = extractClaim(token, Claims::getSubject); //Extrae el "subject" (nombre de usuario) del token.
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
@@ -51,11 +53,13 @@ public class JwtService {
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        //Extrae todos los reclamos del token. Usa el método Jwts.parser() para analizar el token JWT y verificarlo usando la clave secreta
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
     private Claims extractAllClaims(String token) {
+        //Extrae todos los reclamos del token. Usa el método Jwts.parser() para analizar el token JWT y verificarlo usando la clave secreta
         return Jwts
                 .parser()
                 .verifyWith(getSecretKey())
